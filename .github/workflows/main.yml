@@ -39,6 +39,6 @@ jobs:
       - name: Build Application
         run: npm run build -- --configuration=production
 
-      - name: Deploy (Only on main branch)
-        if: github.ref == 'refs/heads/main'
-        run: npm run deploy
+      # - name: Deploy (Only on main branch)
+      #   if: github.ref == 'refs/heads/main'
+      #   run: npm run deploy
