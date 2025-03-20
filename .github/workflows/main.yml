@@ -170,7 +170,7 @@ jobs:
 
       - name: Display Name
         run: echo Mhike Cron
-  display-name:
+  MhikeCron:
     runs-on: ubuntu-latest
     needs: [performance-test]
     steps:
