@@ -42,4 +42,3 @@ jobs:
       - name: Deploy (Only on main branch)
         if: github.ref == 'refs/heads/main'
         run: npm run deploy
-      - name: Display Name
