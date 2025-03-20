@@ -42,5 +42,4 @@ jobs:
       - name: Deploy (Only on main branch)
         if: github.ref == 'refs/heads/main'
         run: npm run deploy
-
-name: MJ Cron
+      - name: Display Name
