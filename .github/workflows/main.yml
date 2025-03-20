@@ -105,7 +105,7 @@ jobs:
         run: npm start &  # Run app in the background
 
       - name: Run End-to-End Tests
-        run: npm run e2e
+        run: npm run e2e --yes
 
   integration-test:
     runs-on: ubuntu-latest
