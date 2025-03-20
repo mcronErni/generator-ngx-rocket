@@ -1,0 +1,163 @@
+name: Angular CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  # security-audit:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
+
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 18
+  #         cache: 'npm'
+
+  #     - name: Install Dependencies
+  #       run: npm ci
+
+  #     - name: Run Security Audit
+  #       run: npm audit --audit-level=high
+
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Check Code Formatting with Prettier
+        run: npm run prettier:check
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Lint Code
+        run: npm run lint
+
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Unit Tests
+        run: npm run test -- --watch=false --browsers=ChromeHeadless
+
+  e2e-test:
+    runs-on: ubuntu-latest
+    needs: [lint, unit-test] # Ensures lint and unit tests pass first
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Start Application for E2E Tests
+        run: npm start & # Run app in the background
+
+      - name: Run End-to-End Tests
+        run: npm run e2e -- --port=4300
+
+  integration-test:
+    runs-on: ubuntu-latest
+    needs: [lint, unit-test, e2e] # Ensures unit tests pass first
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Integration Tests
+        run: npm run test -- --watch=false --browsers=ChromeHeadless --configuration=integration
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [lint, unit-test, integration-test] # Ensures lint & unit tests pass first
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Application
+        run: npm run build -- --configuration=production
+
+      - name: Create ZIP Archive
+        run: zip -r Mhike.zip ./dist
+
+      - name: Upload Artifact (ZIP File)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mhike
+          path: Mhike.zip
+
+  performance-test:
+    runs-on: ubuntu-latest
+    needs: [build] # Run after the build completes
+    steps:
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@latest
+
+      - name: Run Lighthouse Performance Tests
+        run: lhci autorun || echo "Lighthouse test failed, but continuing."

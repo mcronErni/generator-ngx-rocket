@@ -1,4 +1,4 @@
-# trial_app
+# trial app
 
 Welcome to the project documentation!
 
