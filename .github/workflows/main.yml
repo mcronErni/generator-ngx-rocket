@@ -108,7 +108,7 @@ jobs:
         run: sudo lsof -t -i:4200 | xargs -r kill -9
       
       - name: Run End-to-End Tests
-        run: npm run e2e -- --port=4300
+        run: npm run e2e
 
 
   integration-test:
